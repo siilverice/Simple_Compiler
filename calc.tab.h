@@ -64,7 +64,8 @@ extern int yydebug;
      END = 273,
      LOOP = 274,
      IF = 275,
-     EQ = 276
+     EQ = 276,
+     NEG = 277
    };
 #endif
 

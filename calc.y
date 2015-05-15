@@ -7,7 +7,7 @@
 
 #define YYSTYPE int64_t
 
-int64_t regis[10]={0};
+int64_t regis[26]={0};
 int64_t acc,temppop;
 int64_t *top;
 struct stack
@@ -38,6 +38,7 @@ char show_flag = 0;
 
 %left PLUS MINUS
 %left DIVIDE MOD TIMES
+%left NEG
 
 %start Input
 %%
@@ -48,7 +49,7 @@ Input:
 
 Line:
      END
-	| Expression END
+	| Statement END
         {
             if(!top_flag)
             {
@@ -63,22 +64,29 @@ Line:
                 top_flag = 0;
             }
         }
+    | Expression END
 	| Error END {printf("ERROR\n");}
 	| error END {printf("ERROR\n");}
 ;
 
-Expression:
+Statement:
      NUMBER { $$=$1; }
     | HEXNUM { $$=$1; }
-	| Expression PLUS Expression { $$=$1+$3; }
-	| Expression MINUS Expression { $$=$1-$3; }
-	| Expression TIMES Expression { $$=$1*$3; }
-	| Expression DIVIDE Expression { $$=$1/$3; }
-	| Expression MOD Expression { $$=$1%$3; }
-    | LEFT Expression RIGHT { $$=$2; }
-    | CLEFT Expression CRIGHT { $$=$2; }
-    | SHOW Reg { $$=$2; show_flag=1; }
+    | LEFT Statement RIGHT { $$=$2; }
+    | CLEFT Statement CRIGHT { $$=$2; }
 	| Reg { $$ = $1; }
+    | Statement PLUS Statement { $$=$1+$3; }
+    | Statement MINUS Statement { $$=$1-$3; }
+    | Statement TIMES Statement { $$=$1*$3; }
+    | Statement DIVIDE Statement { $$=$1/$3; }
+    | Statement MOD Statement { $$=$1%$3; }
+    | MINUS Statement %prec NEG { $$=-$2; }
+    | SHOW Reg { $$=$2; show_flag=1; }
+    | IF LEFT Expression RIGHT {}
+;
+
+Expression:
+    Statement EQ EQ Statement {}
 ;
 
 Reg:
@@ -103,7 +111,6 @@ int main() {
         fprintf(stderr, "error found.\n");
 
 }
-
 
 push(int64_t data)
 {
