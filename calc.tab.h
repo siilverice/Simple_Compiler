@@ -67,7 +67,8 @@ extern int yydebug;
      EQ = 276,
      PRINT10 = 277,
      PRINT16 = 278,
-     NEG = 279
+     EOC = 279,
+     NEG = 280
    };
 #endif
 

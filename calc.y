@@ -23,7 +23,19 @@ struct node
     struct node *left, *right;
 };
 typedef struct node node;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40} Token_type;
+
+void traverse_tree(node *root)
+{
+        if(root->left != NULL)
+            traverse_tree(root->left);
+        if(root != NULL)
+            printf("[%d]", root->token_type);
+        if(root->right != NULL)
+            traverse_tree(root->right);
+
+}
+node *root_node = NULL;
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
 
 struct stack *start=NULL;
 // GTree* t = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
@@ -44,6 +56,7 @@ char show_flag = 0;
 %token END
 %token LOOP IF TO EQ
 %token PRINT10 PRINT16
+%token EOC
 
 
 %left PLUS MINUS EQ
@@ -54,15 +67,19 @@ char show_flag = 0;
 %%
 
 Input:
+
      | Input Line {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LINK_TT;
                         n->left = (node*)$2;
                         n->right = (node*)$1;
                         n->val = (char*)'K';
+                        root_node = n;
                         $$=(int64_t)n;
                     }
+
 ;
+
 
 Line:
      END
@@ -71,29 +88,21 @@ Line:
     | PRINT10 Statement END {} ;
     | PRINT16 Statement END {} ;
     | Assign END
+    | EOC END { 
+            node *n = (node*)malloc(sizeof(node));
+            n->token_type = EOC_TT;
+            n->left = NULL;
+            n->right = NULL;
+            n->val = (char*)'E';
+            // root_node = n;
+            if(root_node->right==NULL)       root_node->right=n;
+            traverse_tree(root_node);  }
 	| Error END {printf("ERROR\n");}
 	| error END {printf("ERROR\n");}
 ;
 
 Statement:
-     NUMBER { 
-                node *n = (node*)malloc(sizeof(node));
-                n->token_type = CONST_TT;
-                n->left = NULL;
-                n->right = NULL;
-                n->val = (char*)$1;
-                printf("%d ", $1); 
-                $$=(int64_t)n;
-            }
-    | HEXNUM { 
-                node *n = (node*)malloc(sizeof(node));
-                n->token_type = CONST_TT;
-                n->left = NULL;
-                n->right = NULL;
-                n->val = (char*)$1;
-                printf("%d ", $1); 
-                $$=(int64_t)n;
-            }
+    Const
     | LEFT Statement RIGHT { printf("(STMT)"); }
     | CLEFT Statement CRIGHT { printf("{STMT}"); }
 	| Reg  
@@ -153,6 +162,27 @@ Statement:
                                 }
 ;
 
+Const:
+    NUMBER { 
+                node *n = (node*)malloc(sizeof(node));
+                n->token_type = CONST_TT;
+                n->left = NULL;
+                n->right = NULL;
+                n->val = (char*)$1;
+                printf("%d ", $1); 
+                $$=(int64_t)n;
+            }
+    | HEXNUM { 
+                node *n = (node*)malloc(sizeof(node));
+                n->token_type = CONST_TT;
+                n->left = NULL;
+                n->right = NULL;
+                n->val = (char*)$1;
+                printf("%d ", $1); 
+                $$=(int64_t)n;
+            }
+;
+
 Assign:
     Reg EQ Statement { 
                         node *n = (node*)malloc(sizeof(node));
@@ -166,18 +196,18 @@ Assign:
 
 
 Condstatement:
-    IF LEFT Expression RIGHT END CLEFT END Statement END CRIGHT END { 
+    IF  Expression  Assign  { 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = IF_TT;
-                        n->left = (node*)$3;
-                        n->right = (node*)$8;
+                        n->left = (node*)$2;
+                        n->right = (node*)$3;
                         n->val = (char*)'I';
                         $$=(int64_t)n;
                     }
 ;
 
 Loopstatement:
-    LOOP NUMBER TO NUMBER END CLEFT END Statement END CRIGHT END {
+    LOOP NUMBER TO NUMBER Assign  {
                         node *n1 = (node*)malloc(sizeof(node));
                         n1->token_type = CONST_TT;
                         n1->left = NULL;
@@ -187,7 +217,7 @@ Loopstatement:
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LOOP_TT;
                         n->left = n1;
-                        n->right = (node*)$8;
+                        n->right = (node*)$5;
                         n->val = (char*)'L';
                         $$=(int64_t)n;
                     }
@@ -198,7 +228,7 @@ Expression:
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = CMP_TT;
                                     n->left = (node*)$1;
-                                    n->right = (node*)$3;
+                                    n->right = (node*)$4;
                                     n->val = (char*)'C';
                                     $$=(int64_t)n;
                                 }

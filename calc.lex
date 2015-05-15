@@ -67,6 +67,7 @@ real {integer}("."{integer})?{exponent}?
 "}" return CRIGHT;
 "$r" return REG;
 "SHOW" return SHOW;
+"eoc" return EOC;
 . return ERROR;
 
 %%
