@@ -6,14 +6,14 @@
 #include <inttypes.h>
 // #include <glib.h>
 
-#define YYSTYPE int64_t
+#define YYSTYPE long
 
-int64_t regis[26]={0};
-int64_t acc,temppop;
-int64_t *top;
+int regis[26]={0};
+int acc,temppop;
+int *top;
 struct stack
 {
-    int64_t info;
+    int info;
     struct stack *link;
 };
 struct node
@@ -24,23 +24,39 @@ struct node
 };
 typedef struct node node;
 
+void init_cgen(FILE *fp)
+{
+    fprintf(fp, "%s\n", "\t.global\tmain");
+    fprintf(fp, "%s\n", "\ttext");
+    fprintf(fp, "%s\n", "main:");
+
+}
+void print_16(FILE *fp, node *node_var)
+{
+    //fprintf(fp, "%s\t%s\n", "mov", "\"\"");
+}
+
 void traverse_tree(node *root)
 {
         if(root->left != NULL)
             traverse_tree(root->left);
-        if(root != NULL)
-            printf("[%d]", root->token_type);
+        
         if(root->right != NULL)
             traverse_tree(root->right);
 
+        if(root != NULL)
+            printf("[%d]", root->token_type);
+
 }
 node *root_node = NULL;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, 
+    DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, 
+    EOC_TT=50} Token_type;
 
 struct stack *start=NULL;
 // GTree* t = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
 
-// int64_t* getTopPtr();
+// int* getTopPtr();
 char top_flag = 0;
 char show_flag = 0;
 %}
@@ -75,7 +91,7 @@ Input:
                         n->right = (node*)$1;
                         n->val = (char*)'K';
                         root_node = n;
-                        $$=(int64_t)n;
+                        $$=(long)n;
                     }
 
 ;
@@ -112,7 +128,7 @@ Statement:
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
                                     n->val = (char*)'+';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
     | Statement MINUS Statement { 
                                     node *n = (node*)malloc(sizeof(node));
@@ -120,7 +136,7 @@ Statement:
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
                                     n->val = (char*)'-';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
     | Statement TIMES Statement { 
                                     node *n = (node*)malloc(sizeof(node));
@@ -128,7 +144,7 @@ Statement:
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
                                     n->val = (char*)'*';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
     | Statement DIVIDE Statement { 
                                     node *n = (node*)malloc(sizeof(node));
@@ -136,7 +152,7 @@ Statement:
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
                                     n->val = (char*)'/';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
     | Statement MOD Statement { 
                                     node *n = (node*)malloc(sizeof(node));
@@ -144,7 +160,7 @@ Statement:
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
                                     n->val = (char*)'%';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
     | MINUS Statement %prec NEG { 
                                     node *n1 = (node*)malloc(sizeof(node));
@@ -158,7 +174,7 @@ Statement:
                                     n2->left = n1;
                                     n2->right = (node*)$2;
                                     n2->val = (char*)'-';
-                                    $$=(int64_t)n2;
+                                    $$=(long)n2;
                                 }
 ;
 
@@ -170,7 +186,7 @@ Const:
                 n->right = NULL;
                 n->val = (char*)$1;
                 printf("%d ", $1); 
-                $$=(int64_t)n;
+                $$=(long)n;
             }
     | HEXNUM { 
                 node *n = (node*)malloc(sizeof(node));
@@ -179,7 +195,7 @@ Const:
                 n->right = NULL;
                 n->val = (char*)$1;
                 printf("%d ", $1); 
-                $$=(int64_t)n;
+                $$=(long)n;
             }
 ;
 
@@ -190,7 +206,7 @@ Assign:
                         n->left = (node*)$1;
                         n->right = (node*)$3;
                         n->val = (char*)'=';
-                        $$=(int64_t)n;
+                        $$=(long)n;
                     }
 ;
 
@@ -202,7 +218,7 @@ Condstatement:
                         n->left = (node*)$2;
                         n->right = (node*)$3;
                         n->val = (char*)'I';
-                        $$=(int64_t)n;
+                        $$=(long)n;
                     }
 ;
 
@@ -219,7 +235,7 @@ Loopstatement:
                         n->left = n1;
                         n->right = (node*)$5;
                         n->val = (char*)'L';
-                        $$=(int64_t)n;
+                        $$=(long)n;
                     }
 ;
 
@@ -230,7 +246,7 @@ Expression:
                                     n->left = (node*)$1;
                                     n->right = (node*)$4;
                                     n->val = (char*)'C';
-                                    $$=(int64_t)n;
+                                    $$=(long)n;
                                 }
 ;
 
@@ -240,9 +256,9 @@ Reg:
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
-                    n->val = (char*)regis[$2];
+                    n->val = (char*)(long)regis[$2];
                     printf("%d ", $1); 
-                    $$=(int64_t)n;
+                    $$=(long)n;
                 }
 ;   
 
@@ -265,10 +281,10 @@ int main() {
 
 }
 
-push(int64_t data)
+push(int data)
 {
     struct stack *new,*temp;
-    int64_t i=0;
+    int i=0;
 
     new=(struct stack *)malloc(sizeof(struct stack));
     new->info = data;
@@ -276,10 +292,10 @@ push(int64_t data)
     start=new;
 }
 
-pop(int64_t id)
+pop(int id)
 {
     struct stack *temp,*temp2;
-    int64_t i=0;
+    int i=0;
 
     for(temp=start;temp!=NULL;temp=temp->link)
     {
@@ -314,7 +330,7 @@ display()
 getSize()
 {
     struct stack *temp;
-    int64_t i=0;
+    int i=0;
     for(temp=start;temp!=NULL;temp=temp->link)
     {
         i++;
@@ -326,7 +342,7 @@ getTop()
 {
     return start->info;
 }
-int64_t* getTopPtr()
+int* getTopPtr()
 {
     return &(start->info);
 }

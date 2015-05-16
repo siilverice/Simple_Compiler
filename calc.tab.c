@@ -72,14 +72,14 @@
 #include <inttypes.h>
 // #include <glib.h>
 
-#define YYSTYPE int64_t
+#define YYSTYPE long
 
-int64_t regis[26]={0};
-int64_t acc,temppop;
-int64_t *top;
+int regis[26]={0};
+int acc,temppop;
+int *top;
 struct stack
 {
-    int64_t info;
+    int info;
     struct stack *link;
 };
 struct node
@@ -90,28 +90,44 @@ struct node
 };
 typedef struct node node;
 
+void init_cgen(FILE *fp)
+{
+    fprintf(fp, "%s\n", "\t.global\tmain");
+    fprintf(fp, "%s\n", "\ttext");
+    fprintf(fp, "%s\n", "main:");
+
+}
+void print_16(FILE *fp, node *node_var)
+{
+    //fprintf(fp, "%s\t%s\n", "mov", "\"\"");
+}
+
 void traverse_tree(node *root)
 {
         if(root->left != NULL)
             traverse_tree(root->left);
-        if(root != NULL)
-            printf("[%d]", root->token_type);
+        
         if(root->right != NULL)
             traverse_tree(root->right);
 
+        if(root != NULL)
+            printf("[%d]", root->token_type);
+
 }
 node *root_node = NULL;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, 
+    DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, 
+    EOC_TT=50} Token_type;
 
 struct stack *start=NULL;
 // GTree* t = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
 
-// int64_t* getTopPtr();
+// int* getTopPtr();
 char top_flag = 0;
 char show_flag = 0;
 
 /* Line 371 of yacc.c  */
-#line 115 "calc.tab.c"
+#line 131 "calc.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -202,7 +218,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 206 "calc.tab.c"
+#line 222 "calc.tab.c"
 
 #ifdef short
 # undef short
@@ -502,12 +518,12 @@ static const yytype_int8 yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    69,    69,    71,    85,    86,    87,    88,    89,    90,
-      91,   100,   101,   105,   106,   107,   108,   109,   117,   125,
-     133,   141,   149,   166,   175,   187,   199,   210,   227,   238,
-     250,   251
+       0,    85,    85,    87,   101,   102,   103,   104,   105,   106,
+     107,   116,   117,   121,   122,   123,   124,   125,   133,   141,
+     149,   157,   165,   182,   191,   203,   215,   226,   243,   254,
+     266,   267
 };
 #endif
 
@@ -1443,7 +1459,7 @@ yyreduce:
     {
         case 3:
 /* Line 1792 of yacc.c  */
-#line 71 "calc.y"
+#line 87 "calc.y"
     {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LINK_TT;
@@ -1451,25 +1467,25 @@ yyreduce:
                         n->right = (node*)(yyvsp[(1) - (2)]);
                         n->val = (char*)'K';
                         root_node = n;
-                        (yyval)=(int64_t)n;
+                        (yyval)=(long)n;
                     }
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 88 "calc.y"
+#line 104 "calc.y"
     {}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 89 "calc.y"
+#line 105 "calc.y"
     {}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 91 "calc.y"
+#line 107 "calc.y"
     { 
             node *n = (node*)malloc(sizeof(node));
             n->token_type = EOC_TT;
@@ -1483,96 +1499,96 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 100 "calc.y"
+#line 116 "calc.y"
     {printf("ERROR\n");}
     break;
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 101 "calc.y"
+#line 117 "calc.y"
     {printf("ERROR\n");}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 106 "calc.y"
+#line 122 "calc.y"
     { printf("(STMT)"); }
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 107 "calc.y"
+#line 123 "calc.y"
     { printf("{STMT}"); }
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 109 "calc.y"
+#line 125 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = PLUS_TT;
                                     n->left = (node*)(yyvsp[(1) - (3)]);
                                     n->right = (node*)(yyvsp[(3) - (3)]);
                                     n->val = (char*)'+';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 117 "calc.y"
+#line 133 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MINUS_TT;
                                     n->left = (node*)(yyvsp[(1) - (3)]);
                                     n->right = (node*)(yyvsp[(3) - (3)]);
                                     n->val = (char*)'-';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 125 "calc.y"
+#line 141 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MULTIPLY_TT;
                                     n->left = (node*)(yyvsp[(1) - (3)]);
                                     n->right = (node*)(yyvsp[(3) - (3)]);
                                     n->val = (char*)'*';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 133 "calc.y"
+#line 149 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = DIVIDE_TT;
                                     n->left = (node*)(yyvsp[(1) - (3)]);
                                     n->right = (node*)(yyvsp[(3) - (3)]);
                                     n->val = (char*)'/';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 141 "calc.y"
+#line 157 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MOD_TT;
                                     n->left = (node*)(yyvsp[(1) - (3)]);
                                     n->right = (node*)(yyvsp[(3) - (3)]);
                                     n->val = (char*)'%';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 149 "calc.y"
+#line 165 "calc.y"
     { 
                                     node *n1 = (node*)malloc(sizeof(node));
                                     n1->token_type = CONST_TT;
@@ -1585,13 +1601,13 @@ yyreduce:
                                     n2->left = n1;
                                     n2->right = (node*)(yyvsp[(2) - (2)]);
                                     n2->val = (char*)'-';
-                                    (yyval)=(int64_t)n2;
+                                    (yyval)=(long)n2;
                                 }
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 166 "calc.y"
+#line 182 "calc.y"
     { 
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
@@ -1599,13 +1615,13 @@ yyreduce:
                 n->right = NULL;
                 n->val = (char*)(yyvsp[(1) - (1)]);
                 printf("%d ", (yyvsp[(1) - (1)])); 
-                (yyval)=(int64_t)n;
+                (yyval)=(long)n;
             }
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 175 "calc.y"
+#line 191 "calc.y"
     { 
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
@@ -1613,39 +1629,39 @@ yyreduce:
                 n->right = NULL;
                 n->val = (char*)(yyvsp[(1) - (1)]);
                 printf("%d ", (yyvsp[(1) - (1)])); 
-                (yyval)=(int64_t)n;
+                (yyval)=(long)n;
             }
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 187 "calc.y"
+#line 203 "calc.y"
     { 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = ASSIGN_TT;
                         n->left = (node*)(yyvsp[(1) - (3)]);
                         n->right = (node*)(yyvsp[(3) - (3)]);
                         n->val = (char*)'=';
-                        (yyval)=(int64_t)n;
+                        (yyval)=(long)n;
                     }
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 199 "calc.y"
+#line 215 "calc.y"
     { 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = IF_TT;
                         n->left = (node*)(yyvsp[(2) - (3)]);
                         n->right = (node*)(yyvsp[(3) - (3)]);
                         n->val = (char*)'I';
-                        (yyval)=(int64_t)n;
+                        (yyval)=(long)n;
                     }
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 210 "calc.y"
+#line 226 "calc.y"
     {
                         node *n1 = (node*)malloc(sizeof(node));
                         n1->token_type = CONST_TT;
@@ -1658,52 +1674,52 @@ yyreduce:
                         n->left = n1;
                         n->right = (node*)(yyvsp[(5) - (5)]);
                         n->val = (char*)'L';
-                        (yyval)=(int64_t)n;
+                        (yyval)=(long)n;
                     }
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 227 "calc.y"
+#line 243 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = CMP_TT;
                                     n->left = (node*)(yyvsp[(1) - (4)]);
                                     n->right = (node*)(yyvsp[(4) - (4)]);
                                     n->val = (char*)'C';
-                                    (yyval)=(int64_t)n;
+                                    (yyval)=(long)n;
                                 }
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 238 "calc.y"
+#line 254 "calc.y"
     {
                     node *n = (node*)malloc(sizeof(node));
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
-                    n->val = (char*)regis[(yyvsp[(2) - (2)])];
+                    n->val = (char*)(long)regis[(yyvsp[(2) - (2)])];
                     printf("%d ", (yyvsp[(1) - (2)])); 
-                    (yyval)=(int64_t)n;
+                    (yyval)=(long)n;
                 }
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 250 "calc.y"
+#line 266 "calc.y"
     {}
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 251 "calc.y"
+#line 267 "calc.y"
     {}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1707 "calc.tab.c"
+#line 1723 "calc.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1935,7 +1951,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 253 "calc.y"
+#line 269 "calc.y"
 
 
 int yyerror(char *s) {
@@ -1951,10 +1967,10 @@ int main() {
 
 }
 
-push(int64_t data)
+push(int data)
 {
     struct stack *new,*temp;
-    int64_t i=0;
+    int i=0;
 
     new=(struct stack *)malloc(sizeof(struct stack));
     new->info = data;
@@ -1962,10 +1978,10 @@ push(int64_t data)
     start=new;
 }
 
-pop(int64_t id)
+pop(int id)
 {
     struct stack *temp,*temp2;
-    int64_t i=0;
+    int i=0;
 
     for(temp=start;temp!=NULL;temp=temp->link)
     {
@@ -2000,7 +2016,7 @@ display()
 getSize()
 {
     struct stack *temp;
-    int64_t i=0;
+    int i=0;
     for(temp=start;temp!=NULL;temp=temp->link)
     {
         i++;
@@ -2012,7 +2028,7 @@ getTop()
 {
     return start->info;
 }
-int64_t* getTopPtr()
+int* getTopPtr()
 {
     return &(start->info);
 }

@@ -21,21 +21,21 @@ real {integer}("."{integer})?{exponent}?
 %%
 
 {white} { }
-{real} { yylval=atoll(yytext);
+{real} { yylval=atoi(yytext);
  return NUMBER;
 }
 {hex} {
     int insize = strlen(yytext);
     yytext[insize-1] = '\0';
-    sscanf(yytext, "%"PRIx64"", &yylval);
+    sscanf(yytext, "%x", &yylval);
     return HEXNUM;
 }
 
 {bin} {
     int insize = strlen(yytext);
     yytext[insize-1] = '\0';
-    int64_t decimal=0, i=0, rem, n;
-    sscanf(yytext, "%"PRId64"", &n);
+    int decimal=0, i=0, rem, n;
+    sscanf(yytext, "%d", &n);
     while (n!=0)
     {
         rem = n%10;

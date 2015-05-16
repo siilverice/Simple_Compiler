@@ -786,7 +786,7 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 24 "calc.lex"
-{ yylval=atoll(yytext);
+{ yylval=atoi(yytext);
  return NUMBER;
 }
 	YY_BREAK
@@ -796,7 +796,7 @@ YY_RULE_SETUP
 {
     int insize = strlen(yytext);
     yytext[insize-1] = '\0';
-    sscanf(yytext, "%"PRIx64"", &yylval);
+    sscanf(yytext, "%x", &yylval);
     return HEXNUM;
 }
 	YY_BREAK
@@ -806,8 +806,8 @@ YY_RULE_SETUP
 {
     int insize = strlen(yytext);
     yytext[insize-1] = '\0';
-    int64_t decimal=0, i=0, rem, n;
-    sscanf(yytext, "%"PRId64"", &n);
+    int decimal=0, i=0, rem, n;
+    sscanf(yytext, "%d", &n);
     while (n!=0)
     {
         rem = n%10;
