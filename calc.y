@@ -29,6 +29,7 @@ void init_cgen(FILE *fp)
     fprintf(fp, "%s\n", "\t.global\tmain");
     fprintf(fp, "%s\n", "\ttext");
     fprintf(fp, "%s\n", "main:");
+    fprintf(fp, "%s\n", "");
 
 }
 void print_16(FILE *fp, node *node_var)
@@ -40,17 +41,16 @@ void traverse_tree(node *root)
 {
         if(root->left != NULL)
             traverse_tree(root->left);
-        
         if(root->right != NULL)
             traverse_tree(root->right);
 
-        if(root != NULL)
+if(root != NULL)
             printf("[%d]", root->token_type);
 
 }
 node *root_node = NULL;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, 
-    DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, 
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT,
+    DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40,
     EOC_TT=50} Token_type;
 
 struct stack *start=NULL;
@@ -67,7 +67,7 @@ char show_flag = 0;
 %token PLUS MINUS DIVIDE MOD TIMES
 %token LEFT RIGHT
 %token CLEFT CRIGHT
-%token REG 
+%token REG
 %token ERROR
 %token END
 %token LOOP IF TO EQ
@@ -84,7 +84,7 @@ char show_flag = 0;
 
 Input:
 
-     | Input Line {
+| Input Line {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LINK_TT;
                         n->left = (node*)$2;
@@ -98,13 +98,13 @@ Input:
 
 
 Line:
-     END
+    END
     | Condstatement END
     | Loopstatement END
     | PRINT10 Statement END {} ;
     | PRINT16 Statement END {} ;
     | Assign END
-    | EOC END { 
+    | EOC END {
             node *n = (node*)malloc(sizeof(node));
             n->token_type = EOC_TT;
             n->left = NULL;
@@ -113,16 +113,16 @@ Line:
             // root_node = n;
             if(root_node->right==NULL)       root_node->right=n;
             traverse_tree(root_node);  }
-	| Error END {printf("ERROR\n");}
-	| error END {printf("ERROR\n");}
+    | Error END {printf("ERROR\n");}
+    | error END {printf("ERROR\n");}
 ;
 
 Statement:
-    Const
+         Const
     | LEFT Statement RIGHT { printf("(STMT)"); }
     | CLEFT Statement CRIGHT { printf("{STMT}"); }
-	| Reg  
-    | Statement PLUS Statement  { 
+    | Reg
+    | Statement PLUS Statement  {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = PLUS_TT;
                                     n->left = (node*)$1;
@@ -130,7 +130,7 @@ Statement:
                                     n->val = (char*)'+';
                                     $$=(long)n;
                                 }
-    | Statement MINUS Statement { 
+    | Statement MINUS Statement {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MINUS_TT;
                                     n->left = (node*)$1;
@@ -138,7 +138,7 @@ Statement:
                                     n->val = (char*)'-';
                                     $$=(long)n;
                                 }
-    | Statement TIMES Statement { 
+    | Statement TIMES Statement {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MULTIPLY_TT;
                                     n->left = (node*)$1;
@@ -146,7 +146,7 @@ Statement:
                                     n->val = (char*)'*';
                                     $$=(long)n;
                                 }
-    | Statement DIVIDE Statement { 
+    | Statement DIVIDE Statement {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = DIVIDE_TT;
                                     n->left = (node*)$1;
@@ -154,7 +154,7 @@ Statement:
                                     n->val = (char*)'/';
                                     $$=(long)n;
                                 }
-    | Statement MOD Statement { 
+    | Statement MOD Statement {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MOD_TT;
                                     n->left = (node*)$1;
@@ -162,14 +162,14 @@ Statement:
                                     n->val = (char*)'%';
                                     $$=(long)n;
                                 }
-    | MINUS Statement %prec NEG { 
+    | MINUS Statement %prec NEG {
                                     node *n1 = (node*)malloc(sizeof(node));
                                     n1->token_type = CONST_TT;
                                     n1->left = NULL;
                                     n1->right = NULL;
                                     n1->val = (char*)0;
 
-                                    node *n2 = (node*)malloc(sizeof(node));
+node *n2 = (node*)malloc(sizeof(node));
                                     n2->token_type = MINUS_TT;
                                     n2->left = n1;
                                     n2->right = (node*)$2;
@@ -179,28 +179,28 @@ Statement:
 ;
 
 Const:
-    NUMBER { 
+     NUMBER {
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
                 n->left = NULL;
                 n->right = NULL;
                 n->val = (char*)$1;
-                printf("%d ", $1); 
+                printf("%d ", $1);
                 $$=(long)n;
             }
-    | HEXNUM { 
+    | HEXNUM {
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
                 n->left = NULL;
                 n->right = NULL;
                 n->val = (char*)$1;
-                printf("%d ", $1); 
+                printf("%d ", $1);
                 $$=(long)n;
             }
 ;
 
 Assign:
-    Reg EQ Statement { 
+      Reg EQ Statement {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = ASSIGN_TT;
                         n->left = (node*)$1;
@@ -212,7 +212,7 @@ Assign:
 
 
 Condstatement:
-    IF  Expression  Assign  { 
+             IF  Expression  Assign  {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = IF_TT;
                         n->left = (node*)$2;
@@ -223,14 +223,14 @@ Condstatement:
 ;
 
 Loopstatement:
-    LOOP NUMBER TO NUMBER Assign  {
+             LOOP NUMBER TO NUMBER Assign  {
                         node *n1 = (node*)malloc(sizeof(node));
                         n1->token_type = CONST_TT;
                         n1->left = NULL;
                         n1->right = NULL;
                         n1->val = (char*)$4-$2;
 
-                        node *n = (node*)malloc(sizeof(node));
+node *n = (node*)malloc(sizeof(node));
                         n->token_type = LOOP_TT;
                         n->left = n1;
                         n->right = (node*)$5;
@@ -240,7 +240,7 @@ Loopstatement:
 ;
 
 Expression:
-    Statement EQ EQ Statement   { 
+          Statement EQ EQ Statement   {
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = CMP_TT;
                                     n->left = (node*)$1;
@@ -251,20 +251,20 @@ Expression:
 ;
 
 Reg:
-     REG NUMBER {
+   REG NUMBER {
                     node *n = (node*)malloc(sizeof(node));
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
                     n->val = (char*)(long)regis[$2];
-                    printf("%d ", $1); 
+                    printf("%d ", $1);
                     $$=(long)n;
                 }
-;   
+;
 
 Error:
-	ERROR {}
-	| Error ERROR {}
+     ERROR {}
+    | Error ERROR {}
 
 %%
 
@@ -274,7 +274,7 @@ int yyerror(char *s) {
 
 int main() {
 
-    if (yyparse())
+if (yyparse())
         fprintf(stderr, "Successful parsing.\n");
     else
         fprintf(stderr, "error found.\n");
@@ -286,7 +286,7 @@ push(int data)
     struct stack *new,*temp;
     int i=0;
 
-    new=(struct stack *)malloc(sizeof(struct stack));
+new=(struct stack *)malloc(sizeof(struct stack));
     new->info = data;
     new->link=start;
     start=new;
@@ -297,17 +297,17 @@ pop(int id)
     struct stack *temp,*temp2;
     int i=0;
 
-    for(temp=start;temp!=NULL;temp=temp->link)
+for(temp=start;temp!=NULL;temp=temp->link)
     {
         i++;
     }
 
-    if(i==0)
+if(i==0)
     {
         fprintf(stderr, "error: stack empty.\n");
     }
 
-    else
+else
     {
         regis[id] = getTop();
         temp2=start->link;
