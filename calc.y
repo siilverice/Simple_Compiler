@@ -29,8 +29,16 @@ void init_cgen(FILE *fp)
     fprintf(fp, "%s\n", "\t.global\tmain");
     fprintf(fp, "%s\n", "\ttext");
     fprintf(fp, "%s\n", "main:");
-    fprintf(fp, "%s\n", "");
-
+    fprintf(fp, "%s\n", "\tpush\t%rbp");
+    fprintf(fp, "%s\n", "\tmov %rsp, %rbp");
+    fprintf(fp, "%s\n", "\tsub $104, %rsb");
+}
+void end_cgen(FILE *fp)
+{
+    fprintf(fp, "%s\n", "\tadd $104, %rsp");
+    fprintf(fp, "%s\n", "\tmov $0, %rax");
+    fprintf(fp, "%s\n", "\tleave");
+    fprintf(fp, "%s", "\tret");
 }
 void print_16(FILE *fp, node *node_var)
 {
@@ -273,7 +281,8 @@ int yyerror(char *s) {
 }
 
 int main() {
-
+    init_cgen(stderr);
+    end_cgen(stderr);
 if (yyparse())
         fprintf(stderr, "Successful parsing.\n");
     else

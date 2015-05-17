@@ -1,5 +1,5 @@
 	.global main
-	
+
 	.text
 main:
 	push	%rbp
