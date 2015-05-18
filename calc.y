@@ -27,24 +27,54 @@ struct node
 typedef struct node node;
 typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
 
+void init_cgen(FILE *fp)
+{
+        fprintf(fp, "%s\n", "\t.global\tmain");
+        fprintf(fp, "%s\n", "\t.text");
+        fprintf(fp, "%s\n", "main:");
+        fprintf(fp, "%s\n", "\tpush\t%rbp");
+        fprintf(fp, "%s\n", "\tmov %rsp, %rbp");
+        fprintf(fp, "%s\n", "\tsub $104, %rsp");
+}
+void end_cgen(FILE *fp)
+{
+        fprintf(fp, "%s\n", "\tadd $104, %rsp");
+        fprintf(fp, "%s\n", "\tmov $0, %rax");
+        fprintf(fp, "%s\n", "\tleave");
+        fprintf(fp, "%s\n", "\tret");
+}
+
 void cgen(node *node, Token_type ttype)
 {
     if(ttype == VAR_TT)
     {
-        fprintf(OUTFP, "\tmov\t%d(%%rbp), %%r8d\n", ADDR_SIZE*node->val);
-        fprintf(OUTFP, "\tpush\t%%r8d\n");
+        fprintf(OUTFP, "\tmov\t%d(%%rbp), %%rax\n", ADDR_SIZE*node->val);
+        fprintf(OUTFP, "\tpush\t%%rax\n");
     }
     else if(ttype == CONST_TT)
     {
-        fprintf(OUTFP, "\tpushl\t$%d\n", node->val);
+        fprintf(OUTFP, "\tpush\t$%d\n", node->val);
     }
     else if(ttype == PLUS_TT)
     {
-        fprintf(OUTFP, "\tpopl\t%%r8d\n");
-        fprintf(OUTFP, "\tpopl\t%%r9d\n");
-        fprintf(OUTFP, "\tadd\t%%r9d%%r8d\n");
-        fprintf(OUTFP, "\tpushl\t%r8d\n");
+        fprintf(OUTFP, "\tpop\t%%rax\n");
+        fprintf(OUTFP, "\tpop\t%%rbx\n");
+        fprintf(OUTFP, "\tadd\t%%rbx, %%rax\n");
+        fprintf(OUTFP, "\tpush\t%rax\n");
     }
+    else if(ttype == MINUS_TT)
+    {
+        fprintf(OUTFP, "\tpopl\t%%rax\n");
+        fprintf(OUTFP, "\tpopl\t%%rbx\n");
+        fprintf(OUTFP, "\tsub\t%%rbx, %%rax\n");
+        fprintf(OUTFP, "\tpushl\t%rax\n");
+    }
+    else if(ttype == EOC_TT)
+    {
+        end_cgen(OUTFP);
+    }
+
+
 }
 
 void traverse_tree(node *root)
@@ -68,6 +98,7 @@ void traverse_tree(node *root)
             printf("[%d]", root->token_type);
             cgen(root, root->token_type);
         }
+        
 }
 node *root_node = NULL;
 
@@ -298,12 +329,12 @@ int yyerror(char *s) {
 }
 
 int main() {
-
+    init_cgen(OUTFP);
     if (yyparse())
         fprintf(stderr, "Successful parsing.\n");
     else
         fprintf(stderr, "error found.\n");
-
+    return 0;
 }
 
 push(int64_t data)
