@@ -7,7 +7,7 @@
 // #include <glib.h>
 
 #define YYSTYPE long
-
+#define OUTFILE stderr
 int regis[26]={0};
 int acc,temppop;
 int *top;
@@ -39,6 +39,10 @@ void end_cgen(FILE *fp)
     fprintf(fp, "%s\n", "\tmov $0, %rax");
     fprintf(fp, "%s\n", "\tleave");
     fprintf(fp, "%s\n", "\tret");
+}
+void emit_cgen(FILE *fp, const char *str)
+{
+    fprintf(fp, "%s\n", str);
 }
 void print_16(FILE *fp, node *node_var)
 {
@@ -93,14 +97,14 @@ char show_flag = 0;
 Input:
 
 | Input Line {
-                        node *n = (node*)malloc(sizeof(node));
-                        n->token_type = LINK_TT;
-                        n->left = (node*)$2;
-                        n->right = (node*)$1;
-                        n->val = (char*)'K';
-                        root_node = n;
-                        $$=(long)n;
-                    }
+                node *n = (node*)malloc(sizeof(node));
+                n->token_type = LINK_TT;
+                n->left = (node*)$2;
+                n->right = (node*)$1;
+                n->val = (char*)'K';
+                root_node = n;
+                $$=(long)n;
+            }
 
 ;
 
@@ -126,7 +130,7 @@ Line:
 ;
 
 Statement:
-         Const
+    Const
     | LEFT Statement RIGHT { printf("(STMT)"); }
     | CLEFT Statement CRIGHT { printf("{STMT}"); }
     | Reg
@@ -188,6 +192,7 @@ node *n2 = (node*)malloc(sizeof(node));
 
 Const:
      NUMBER {
+                emit_cgen(OUTFILE, "\tpushl\t$1");
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
                 n->left = NULL;
@@ -281,8 +286,8 @@ int yyerror(char *s) {
 }
 
 int main() {
-    init_cgen(stderr);
-    end_cgen(stderr);
+    init_cgen(OUTFILE);
+    end_cgen(OUTFILE);
 if (yyparse())
         fprintf(stderr, "Successful parsing.\n");
     else
