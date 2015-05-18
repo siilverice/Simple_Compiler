@@ -25,7 +25,8 @@ struct node
     struct node *left, *right;
 };
 typedef struct node node;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, 
+    IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50, PRINT10_TT=60, PRINT16_TT} Token_type;
 
 void init_cgen(FILE *fp)
 {
@@ -42,6 +43,11 @@ void end_cgen(FILE *fp)
         fprintf(fp, "%s\n", "\tmov $0, %rax");
         fprintf(fp, "%s\n", "\tleave");
         fprintf(fp, "%s\n", "\tret");
+
+        fprintf(fp, "%s\n", "format10:");
+        fprintf(fp, "%s\n", "\t.asciz\t\"[%d]\\n\"");
+        fprintf(fp, "%s\n", "format16:");
+        fprintf(fp, "%s\n", "\t.asciz\t\"[%x]\\n\"");
 }
 
 void cgen(node *node, Token_type ttype)
@@ -68,6 +74,10 @@ void cgen(node *node, Token_type ttype)
         fprintf(OUTFP, "\tpopl\t%%rbx\n");
         fprintf(OUTFP, "\tsub\t%%rbx, %%rax\n");
         fprintf(OUTFP, "\tpushl\t%rax\n");
+    }
+    else if(ttype == PRINT10_TT)
+    {
+        fprintf(OUTFP, "#todo\n");
     }
     else if(ttype == EOC_TT)
     {
@@ -120,13 +130,14 @@ char show_flag = 0;
 %token ERROR
 %token END
 %token LOOP IF TO EQ
-%token PRINT10 PRINT16
+%token PRINTDECIMAL PRINTHEXA
 %token EOC
 
 
 %left PLUS MINUS EQ
 %left DIVIDE MOD TIMES
 %left NEG
+%left PRINTDECIMAL PRINTHEXA
 
 %start Input
 %%
@@ -150,8 +161,41 @@ Line:
      END
     | Condstatement END
     | Loopstatement END
-    | PRINT10 Statement END {} ;
-    | PRINT16 Statement END {} ;
+    /*| PRINT10 Statement END {
+        printf("1: \n");
+                                node *n = (node*)malloc(sizeof(node));
+        printf("2: \n");
+                                n->token_type = PRINT10_TT;
+        printf("3: \n");
+                                n->left = (node*)$2;
+        printf("4: \n");
+                                n->right = NULL;
+        printf("5: \n");
+                                n->val = 'D';
+        printf("6: \n");
+                                $$=(int64_t)n;
+        printf("7: \n");
+
+                            } ;
+                    
+    | PRINT16 Statement END {
+        printf("1: \n");
+                                node *n = (node*)malloc(sizeof(node));
+        printf("2: \n");
+                                n->token_type = PRINT16_TT;
+        printf("3: \n");
+                                n->left = (node*)$2;
+        printf("4: \n");
+                                n->right = NULL;
+        printf("5: \n");
+                                n->val = 'H';
+        printf("6: \n");
+                                $$=(int64_t)n;
+        printf("7: \n");
+                            };
+        */
+    | PrintD END 
+   // | PrintH END 
     | Assign END
     | EOC END { 
             // node *n = (node*)malloc(sizeof(node));
@@ -166,10 +210,48 @@ Line:
             //   root_node->right=n;
                 
             // } 
-            traverse_tree(root_node);  }
+            traverse_tree(root_node);  
+            }
 	| Error END {printf("ERROR\n");}
 	| error END {printf("ERROR\n");}
 ;
+
+PrintD:
+    PRINTDECIMAL Statement {
+        printf("1: \n");
+                                node *n = (node*)malloc(sizeof(node));
+        printf("2: \n");
+                                n->token_type = PRINT10_TT;
+        printf("3: \n");
+                                n->left = (node*)$2;
+        printf("4: \n");
+                                n->right = NULL;
+        printf("5: \n");
+                                n->val = 'D';
+        printf("6: \n");
+                                $$=(int64_t)n;
+        printf("7: \n");
+
+                    } ;
+/*PrintH:
+    PRINTHEXA HEXNUM {
+        printf("1: \n");
+                                node *n = (node*)malloc(sizeof(node));
+        printf("2: \n");
+                                n->token_type = PRINT16_TT;
+        printf("3: \n");
+                                n->left = (node*)$2;
+        printf("4: \n");
+                                n->right = NULL;
+        printf("5: \n");
+                                n->val = 'H';
+        printf("6: \n");
+                                $$=(int64_t)n;
+        printf("7: \n");
+
+                    } ;
+*/
+
 
 Statement:
     Const

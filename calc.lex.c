@@ -843,12 +843,12 @@ return TO;
 case 9:
 YY_RULE_SETUP
 #line 55 "calc.lex"
-return PRINT10;
+return PRINTDECIMAL;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 56 "calc.lex"
-return PRINT16;
+return PRINTHEXA;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP

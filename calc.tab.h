@@ -65,8 +65,8 @@ extern int yydebug;
      IF = 274,
      TO = 275,
      EQ = 276,
-     PRINT10 = 277,
-     PRINT16 = 278,
+     PRINTDECIMAL = 277,
+     PRINTHEXA = 278,
      EOC = 279,
      NEG = 280
    };

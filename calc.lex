@@ -52,8 +52,8 @@ real {integer}("."{integer})?{exponent}?
 "loop" return LOOP;
 "if" return IF;
 "to" return TO;
-"print10" return PRINT10;
-"print16" return PRINT16;
+"print10" return PRINTDECIMAL;
+"print16" return PRINTHEXA;
 
 "+" return PLUS;
 "-" return MINUS;
