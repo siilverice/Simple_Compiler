@@ -51,13 +51,25 @@ void print_16(FILE *fp, node *node_var)
 
 void traverse_tree(node *root)
 {
+    if(root != NULL)
+    {
+        //printf("[out]root != NULL\n");
         if(root->left != NULL)
+        {
+            //printf("root->left != NULL\n");
             traverse_tree(root->left);
+        }
         if(root->right != NULL)
+        {
+            //printf("root->right != NULL\n");
             traverse_tree(root->right);
-
-if(root != NULL)
+        }
+        if(root != NULL)
+        {
+            printf("[in]root != NULL\n");
             printf("[%d]", root->token_type);
+        }
+    }
 
 }
 node *root_node = NULL;
@@ -117,14 +129,27 @@ Line:
     | PRINT16 Statement END {} ;
     | Assign END
     | EOC END {
+            printf("begin EOC\n");
             node *n = (node*)malloc(sizeof(node));
+            printf("malloc'd EOC\n");
             n->token_type = EOC_TT;
             n->left = NULL;
             n->right = NULL;
             n->val = (char*)'E';
-            // root_node = n;
-            if(root_node->right==NULL)       root_node->right=n;
-            traverse_tree(root_node);  }
+
+            printf("assign'd EOC\n");
+
+            if(root_node->right==NULL)
+            {
+                printf("inside if\n");
+                root_node->right=n;
+                printf("outside if\n");
+            }
+            printf("root_node->right=n\n");
+
+            traverse_tree(root_node);
+            printf("traversed\n");
+            }
     | Error END {printf("ERROR\n");}
     | error END {printf("ERROR\n");}
 ;
@@ -181,7 +206,7 @@ Statement:
                                     n1->right = NULL;
                                     n1->val = (char*)0;
 
-node *n2 = (node*)malloc(sizeof(node));
+				    node *n2 = (node*)malloc(sizeof(node));
                                     n2->token_type = MINUS_TT;
                                     n2->left = n1;
                                     n2->right = (node*)$2;
@@ -192,7 +217,7 @@ node *n2 = (node*)malloc(sizeof(node));
 
 Const:
      NUMBER {
-                emit_cgen(OUTFILE, "\tpushl\t$1");
+
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
                 n->left = NULL;
@@ -200,6 +225,9 @@ Const:
                 n->val = (char*)$1;
                 printf("%d ", $1);
                 $$=(long)n;
+
+
+                // fprintf(OUTFILE, "\tpushl\t%d\n", $1);
             }
     | HEXNUM {
                 node *n = (node*)malloc(sizeof(node));
@@ -220,6 +248,14 @@ Assign:
                         n->right = (node*)$3;
                         n->val = (char*)'=';
                         $$=(long)n;
+
+
+
+                        // emit_cgen(OUTFILE, "\tpopl\t%r8d");
+                        // emit_cgen(OUTFILE, "\tmov\t%rbp, %r9d");
+                        // emit_cgen(OUTFILE, "\tadd\t%r9d, %r8d");
+                        // emit_cgen(OUTFILE, "\tpushl\t%r8d");
+
                     }
 ;
 
@@ -269,7 +305,7 @@ Reg:
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
-                    n->val = (char*)(long)regis[$2];
+                    n->val = (char*)$2;
                     printf("%d ", $1);
                     $$=(long)n;
                 }
@@ -286,8 +322,8 @@ int yyerror(char *s) {
 }
 
 int main() {
-    init_cgen(OUTFILE);
-    end_cgen(OUTFILE);
+    // init_cgen(OUTFILE);
+    // end_cgen(OUTFILE);
 if (yyparse())
         fprintf(stderr, "Successful parsing.\n");
     else
