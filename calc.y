@@ -7,6 +7,7 @@
 // #include <glib.h>
 
 #define YYSTYPE int64_t
+#define OUTFP stderr
 
 int64_t regis[26]={0};
 int64_t acc,temppop;
@@ -19,11 +20,23 @@ struct stack
 struct node
 {
     int token_type;
-    char *val;
+    int val;
     struct node *left, *right;
 };
 typedef struct node node;
 typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
+
+void cgen(node *node, Token_type ttype)
+{
+    if(ttype == VAR_TT)
+    {
+
+    }
+    else if(ttype == CONST_TT)
+    {
+        fprintf(OUTFP, "\tpushl\t$%s\n", node->val);
+    }
+}
 
 void traverse_tree(node *root)
 {
@@ -39,11 +52,16 @@ void traverse_tree(node *root)
                 n->token_type = EOC_TT;
                 n->left = NULL;
                 n->right = NULL;
-                n->val = (char*)'E';
+                n->val = 'E';
                 root = n;
             }
-            
+
             printf("[%d]", root->token_type);
+            if(root->token_type == CONST_TT)
+            {
+                fprintf(OUTFP, "\tpushl\t$%d\n", root->val);
+            }
+            //cgen(root, root->token_type);
         }
 }
 node *root_node = NULL;
@@ -84,7 +102,7 @@ Input:
                         n->token_type = LINK_TT;
                         n->left = (node*)$2;
                         n->right = (node*)$1;
-                        n->val = (char*)'K';
+                        n->val = 'K';
                         root_node = n;
                         $$=(int64_t)n;
                     }
@@ -104,7 +122,7 @@ Line:
             // n->token_type = EOC_TT;
             // n->left = NULL;
             // n->right = NULL;
-            // n->val = (char*)'E';
+            // n->val = 'E';
             // root_node = n;
             // printf("before-root->right\n");
             // if(root_node->right==NULL){
@@ -127,7 +145,7 @@ Statement:
                                     n->token_type = PLUS_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
-                                    n->val = (char*)'+';
+                                    n->val = '+';
                                     $$=(int64_t)n;
                                 }
     | Statement MINUS Statement { 
@@ -135,7 +153,7 @@ Statement:
                                     n->token_type = MINUS_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
-                                    n->val = (char*)'-';
+                                    n->val = '-';
                                     $$=(int64_t)n;
                                 }
     | Statement TIMES Statement { 
@@ -143,7 +161,7 @@ Statement:
                                     n->token_type = MULTIPLY_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
-                                    n->val = (char*)'*';
+                                    n->val = '*';
                                     $$=(int64_t)n;
                                 }
     | Statement DIVIDE Statement { 
@@ -151,7 +169,7 @@ Statement:
                                     n->token_type = DIVIDE_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
-                                    n->val = (char*)'/';
+                                    n->val = '/';
                                     $$=(int64_t)n;
                                 }
     | Statement MOD Statement { 
@@ -159,7 +177,7 @@ Statement:
                                     n->token_type = MOD_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$3;
-                                    n->val = (char*)'%';
+                                    n->val = '%';
                                     $$=(int64_t)n;
                                 }
     | MINUS Statement %prec NEG { 
@@ -167,13 +185,13 @@ Statement:
                                     n1->token_type = CONST_TT;
                                     n1->left = NULL;
                                     n1->right = NULL;
-                                    n1->val = (char*)0;
+                                    n1->val = 0;
 
                                     node *n2 = (node*)malloc(sizeof(node));
                                     n2->token_type = MINUS_TT;
                                     n2->left = n1;
                                     n2->right = (node*)$2;
-                                    n2->val = (char*)'-';
+                                    n2->val = '-';
                                     $$=(int64_t)n2;
                                 }
 ;
@@ -184,7 +202,7 @@ Const:
                 n->token_type = CONST_TT;
                 n->left = NULL;
                 n->right = NULL;
-                n->val = (char*)$1;
+                n->val = $1;
                 printf("%d ", $1); 
                 $$=(int64_t)n;
             }
@@ -193,7 +211,7 @@ Const:
                 n->token_type = CONST_TT;
                 n->left = NULL;
                 n->right = NULL;
-                n->val = (char*)$1;
+                n->val = $1;
                 printf("%d ", $1); 
                 $$=(int64_t)n;
             }
@@ -205,7 +223,7 @@ Assign:
                         n->token_type = ASSIGN_TT;
                         n->left = (node*)$1;
                         n->right = (node*)$3;
-                        n->val = (char*)'=';
+                        n->val = '=';
                         $$=(int64_t)n;
                     }
 ;
@@ -217,7 +235,7 @@ Condstatement:
                         n->token_type = IF_TT;
                         n->left = (node*)$2;
                         n->right = (node*)$3;
-                        n->val = (char*)'I';
+                        n->val = 'I';
                         $$=(int64_t)n;
                     }
 ;
@@ -228,13 +246,13 @@ Loopstatement:
                         n1->token_type = CONST_TT;
                         n1->left = NULL;
                         n1->right = NULL;
-                        n1->val = (char*)$4-$2;
+                        n1->val = $4-$2;
 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LOOP_TT;
                         n->left = n1;
                         n->right = (node*)$5;
-                        n->val = (char*)'L';
+                        n->val = 'L';
                         $$=(int64_t)n;
                     }
 ;
@@ -245,7 +263,7 @@ Expression:
                                     n->token_type = CMP_TT;
                                     n->left = (node*)$1;
                                     n->right = (node*)$4;
-                                    n->val = (char*)'C';
+                                    n->val = 'C';
                                     $$=(int64_t)n;
                                 }
 ;
@@ -256,7 +274,7 @@ Reg:
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
-                    n->val = (char*)regis[$2];
+                    n->val = regis[$2];
                     printf("%d ", $1); 
                     $$=(int64_t)n;
                 }
