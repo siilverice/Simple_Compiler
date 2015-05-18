@@ -27,18 +27,18 @@ typedef struct node node;
 void init_cgen(FILE *fp)
 {
     fprintf(fp, "%s\n", "\t.global\tmain");
-    fprintf(fp, "%s\n", "\ttext");
+    fprintf(fp, "%s\n", "\t.text");
     fprintf(fp, "%s\n", "main:");
     fprintf(fp, "%s\n", "\tpush\t%rbp");
     fprintf(fp, "%s\n", "\tmov %rsp, %rbp");
-    fprintf(fp, "%s\n", "\tsub $104, %rsb");
+    fprintf(fp, "%s\n", "\tsub $104, %rsp");
 }
 void end_cgen(FILE *fp)
 {
     fprintf(fp, "%s\n", "\tadd $104, %rsp");
     fprintf(fp, "%s\n", "\tmov $0, %rax");
     fprintf(fp, "%s\n", "\tleave");
-    fprintf(fp, "%s", "\tret");
+    fprintf(fp, "%s\n", "\tret");
 }
 void print_16(FILE *fp, node *node_var)
 {
