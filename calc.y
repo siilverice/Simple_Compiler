@@ -23,19 +23,30 @@ struct node
     struct node *left, *right;
 };
 typedef struct node node;
+typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
 
 void traverse_tree(node *root)
 {
         if(root->left != NULL)
             traverse_tree(root->left);
-        if(root != NULL)
-            printf("[%d]", root->token_type);
+        
         if(root->right != NULL)
             traverse_tree(root->right);
 
+        if(root != NULL){
+            if(root->token_type<10){
+                node *n = (node*)malloc(sizeof(node));
+                n->token_type = EOC_TT;
+                n->left = NULL;
+                n->right = NULL;
+                n->val = (char*)'E';
+                root = n;
+            }
+            
+            printf("[%d]", root->token_type);
+        }
 }
 node *root_node = NULL;
-typedef enum {VAR_TT=10, CONST_TT, PLUS_TT=20, MINUS_TT, MULTIPLY_TT, DIVIDE_TT, MOD_TT, ASSIGN_TT, CMP_TT, IF_TT=30, LOOP_TT, LINK_TT=40, EOC_TT=50} Token_type;
 
 struct stack *start=NULL;
 // GTree* t = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
@@ -89,13 +100,18 @@ Line:
     | PRINT16 Statement END {} ;
     | Assign END
     | EOC END { 
-            node *n = (node*)malloc(sizeof(node));
-            n->token_type = EOC_TT;
-            n->left = NULL;
-            n->right = NULL;
-            n->val = (char*)'E';
+            // node *n = (node*)malloc(sizeof(node));
+            // n->token_type = EOC_TT;
+            // n->left = NULL;
+            // n->right = NULL;
+            // n->val = (char*)'E';
             // root_node = n;
-            if(root_node->right==NULL)       root_node->right=n;
+            // printf("before-root->right\n");
+            // if(root_node->right==NULL){
+            //   printf("root->right\n");
+            //   root_node->right=n;
+                
+            // } 
             traverse_tree(root_node);  }
 	| Error END {printf("ERROR\n");}
 	| error END {printf("ERROR\n");}
