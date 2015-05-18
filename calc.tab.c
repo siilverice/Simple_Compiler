@@ -98,10 +98,18 @@ void cgen(node *node, Token_type ttype)
     if(ttype == VAR_TT)
     {
         fprintf(OUTFP, "\tmov\t%d(%%rbp), %%r8d\n", ADDR_SIZE*node->val);
+        fprintf(OUTFP, "\tpush\t%%r8d\n");
     }
     else if(ttype == CONST_TT)
     {
         fprintf(OUTFP, "\tpushl\t$%d\n", node->val);
+    }
+    else if(ttype == PLUS_TT)
+    {
+        fprintf(OUTFP, "\tpopl\t%%r8d\n");
+        fprintf(OUTFP, "\tpopl\t%%r9d\n");
+        fprintf(OUTFP, "\tadd\t%%r9d%%r8d\n");
+        fprintf(OUTFP, "\tpushl\t%r8d\n");
     }
 }
 
@@ -137,7 +145,7 @@ char top_flag = 0;
 char show_flag = 0;
 
 /* Line 371 of yacc.c  */
-#line 141 "calc.tab.c"
+#line 149 "calc.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -228,7 +236,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 232 "calc.tab.c"
+#line 240 "calc.tab.c"
 
 #ifdef short
 # undef short
@@ -530,10 +538,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    95,    95,    97,   111,   112,   113,   114,   115,   116,
-     117,   131,   132,   136,   137,   138,   139,   140,   148,   156,
-     164,   172,   180,   197,   206,   218,   231,   242,   259,   270,
-     283,   284
+       0,   103,   103,   105,   119,   120,   121,   122,   123,   124,
+     125,   139,   140,   144,   145,   146,   147,   148,   156,   164,
+     172,   180,   188,   205,   214,   226,   239,   250,   267,   278,
+     291,   292
 };
 #endif
 
@@ -1469,7 +1477,7 @@ yyreduce:
     {
         case 3:
 /* Line 1792 of yacc.c  */
-#line 97 "calc.y"
+#line 105 "calc.y"
     {
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = LINK_TT;
@@ -1483,19 +1491,19 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 114 "calc.y"
+#line 122 "calc.y"
     {}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 115 "calc.y"
+#line 123 "calc.y"
     {}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 117 "calc.y"
+#line 125 "calc.y"
     { 
             // node *n = (node*)malloc(sizeof(node));
             // n->token_type = EOC_TT;
@@ -1514,31 +1522,31 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 131 "calc.y"
+#line 139 "calc.y"
     {printf("ERROR\n");}
     break;
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 132 "calc.y"
+#line 140 "calc.y"
     {printf("ERROR\n");}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 137 "calc.y"
+#line 145 "calc.y"
     { printf("(STMT)"); }
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 138 "calc.y"
+#line 146 "calc.y"
     { printf("{STMT}"); }
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 140 "calc.y"
+#line 148 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = PLUS_TT;
@@ -1551,7 +1559,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 148 "calc.y"
+#line 156 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MINUS_TT;
@@ -1564,7 +1572,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 156 "calc.y"
+#line 164 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MULTIPLY_TT;
@@ -1577,7 +1585,7 @@ yyreduce:
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 164 "calc.y"
+#line 172 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = DIVIDE_TT;
@@ -1590,7 +1598,7 @@ yyreduce:
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 172 "calc.y"
+#line 180 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = MOD_TT;
@@ -1603,7 +1611,7 @@ yyreduce:
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 180 "calc.y"
+#line 188 "calc.y"
     { 
                                     node *n1 = (node*)malloc(sizeof(node));
                                     n1->token_type = CONST_TT;
@@ -1622,7 +1630,7 @@ yyreduce:
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 197 "calc.y"
+#line 205 "calc.y"
     { 
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
@@ -1636,7 +1644,7 @@ yyreduce:
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 206 "calc.y"
+#line 214 "calc.y"
     { 
                 node *n = (node*)malloc(sizeof(node));
                 n->token_type = CONST_TT;
@@ -1650,7 +1658,7 @@ yyreduce:
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 218 "calc.y"
+#line 226 "calc.y"
     { 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = ASSIGN_TT;
@@ -1664,7 +1672,7 @@ yyreduce:
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 231 "calc.y"
+#line 239 "calc.y"
     { 
                         node *n = (node*)malloc(sizeof(node));
                         n->token_type = IF_TT;
@@ -1677,7 +1685,7 @@ yyreduce:
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 242 "calc.y"
+#line 250 "calc.y"
     {
                         node *n1 = (node*)malloc(sizeof(node));
                         n1->token_type = CONST_TT;
@@ -1696,7 +1704,7 @@ yyreduce:
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 259 "calc.y"
+#line 267 "calc.y"
     { 
                                     node *n = (node*)malloc(sizeof(node));
                                     n->token_type = CMP_TT;
@@ -1709,7 +1717,7 @@ yyreduce:
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 270 "calc.y"
+#line 278 "calc.y"
     {
                     node *n = (node*)malloc(sizeof(node));
                     n->token_type = VAR_TT;
@@ -1724,19 +1732,19 @@ yyreduce:
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 283 "calc.y"
+#line 291 "calc.y"
     {}
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 284 "calc.y"
+#line 292 "calc.y"
     {}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1740 "calc.tab.c"
+#line 1748 "calc.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1968,7 +1976,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 286 "calc.y"
+#line 294 "calc.y"
 
 
 int yyerror(char *s) {

@@ -38,6 +38,13 @@ void cgen(node *node, Token_type ttype)
     {
         fprintf(OUTFP, "\tpushl\t$%d\n", node->val);
     }
+    else if(ttype == PLUS_TT)
+    {
+        fprintf(OUTFP, "\tpopl\t%%r8d\n");
+        fprintf(OUTFP, "\tpopl\t%%r9d\n");
+        fprintf(OUTFP, "\tadd\t%%r9d%%r8d\n");
+        fprintf(OUTFP, "\tpushl\t%r8d\n");
+    }
 }
 
 void traverse_tree(node *root)
