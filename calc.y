@@ -8,6 +8,7 @@
 
 #define YYSTYPE int64_t
 #define OUTFP stderr
+#define ADDR_SIZE 4
 
 int64_t regis[26]={0};
 int64_t acc,temppop;
@@ -30,11 +31,12 @@ void cgen(node *node, Token_type ttype)
 {
     if(ttype == VAR_TT)
     {
-
+        fprintf(OUTFP, "\tmov\t%d(%%rbp), %%r8d\n", ADDR_SIZE*node->val);
+        fprintf(OUTFP, "\tpush\t%%r8d\n");
     }
     else if(ttype == CONST_TT)
     {
-        fprintf(OUTFP, "\tpushl\t$%s\n", node->val);
+        fprintf(OUTFP, "\tpushl\t$%d\n", node->val);
     }
 }
 
@@ -57,11 +59,7 @@ void traverse_tree(node *root)
             }
 
             printf("[%d]", root->token_type);
-            if(root->token_type == CONST_TT)
-            {
-                fprintf(OUTFP, "\tpushl\t$%d\n", root->val);
-            }
-            //cgen(root, root->token_type);
+            cgen(root, root->token_type);
         }
 }
 node *root_node = NULL;
@@ -224,6 +222,7 @@ Assign:
                         n->left = (node*)$1;
                         n->right = (node*)$3;
                         n->val = '=';
+                        regis[n->left->val] = n->right->val;
                         $$=(int64_t)n;
                     }
 ;
@@ -274,8 +273,9 @@ Reg:
                     n->token_type = VAR_TT;
                     n->left = NULL;
                     n->right = NULL;
-                    n->val = regis[$2];
-                    printf("%d ", $1); 
+                    //n->val = regis[$2];
+                    n->val = $2;
+                    printf("reg%d ", $2); 
                     $$=(int64_t)n;
                 }
 ;   
